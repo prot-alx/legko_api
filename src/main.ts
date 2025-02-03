@@ -3,25 +3,24 @@ import { AppModule } from './app.module';
 import { appConfig } from './config/configuration';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import * as cookieParser from 'cookie-parser'; // Измененный импорт
+import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const start = Date.now();
+  const app = await NestFactory.create(AppModule);
+  app.useGlobalPipes(new ValidationPipe());
+  app.use(cookieParser());
+
+  const config = new DocumentBuilder()
+    .setTitle('Users API')
+    .setDescription('The users API description')
+    .setVersion('1.0')
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, document);
 
   try {
-    const app = await NestFactory.create(AppModule);
     await app.listen(process.env.PORT ?? 3000);
-
-    app.useGlobalPipes(new ValidationPipe());
-    app.use(cookieParser());
-
-    const config = new DocumentBuilder()
-      .setTitle('Users API')
-      .setDescription('The users API description')
-      .setVersion('1.0')
-      .build();
-    const document = SwaggerModule.createDocument(app, config);
-    SwaggerModule.setup('api', app, document);
 
     const end = Date.now();
     const elapsed = end - start;
