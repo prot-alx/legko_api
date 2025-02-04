@@ -31,11 +31,39 @@ export class UsersService {
       ...createUserDto,
       email,
       password: hashedPassword,
-      role: createUserDto.role || UserRole.Student,
+      role: createUserDto.role ?? UserRole.Student,
     });
 
     const savedUser = await newUser.save();
     return this.mapToGetUserDto(savedUser);
+  }
+
+  async createMany(createUsersDto: CreateUserDto[]): Promise<GetUserDto[]> {
+    const emails = createUsersDto.map((user) => user.email.toLowerCase());
+
+    const existingUsers = await this.userModel.find({ email: { $in: emails } });
+    const existingEmails = new Set(existingUsers.map((user) => user.email));
+
+    const newUsers = await Promise.all(
+      createUsersDto
+        .filter((user) => !existingEmails.has(user.email.toLowerCase()))
+        .map(async (user) => {
+          const hashedPassword = await bcrypt.hash(user.password, 10);
+          return new this.userModel({
+            ...user,
+            email: user.email.toLowerCase(),
+            password: hashedPassword,
+            role: user.role ?? UserRole.Student,
+          });
+        }),
+    );
+
+    if (newUsers.length === 0) {
+      throw new ConflictException('All users already exist');
+    }
+
+    const savedUsers = await this.userModel.insertMany(newUsers);
+    return savedUsers.map((user) => this.mapToGetUserDto(user));
   }
 
   async validateUser(email: string, password: string): Promise<UserDocument> {

@@ -30,6 +30,17 @@ export class UsersController {
     return this.usersService.create(createUserDto);
   }
 
+  @Post('bulk')
+  @ApiOperation({ summary: 'Create multiple users' })
+  @ApiResponse({
+    status: 201,
+    description: 'Users have been successfully created.',
+    type: [GetUserDto],
+  })
+  async createMany(@Body() createUsersDto: CreateUserDto[]) {
+    return this.usersService.createMany(createUsersDto);
+  }
+
   @Get()
   @ApiOperation({ summary: 'Get all users' })
   @ApiResponse({

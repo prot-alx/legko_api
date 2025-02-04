@@ -38,5 +38,6 @@ export class CreateUserDto {
 
   @ApiProperty({ enum: UserRole, default: UserRole.Student })
   @IsEnum(UserRole)
-  role: UserRole;
+  @IsOptional()
+  role?: UserRole;
 }
