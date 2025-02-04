@@ -12,6 +12,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
 import { User } from './schemas/user.schema';
+import { GetUserDto } from './dto/get-user.dto';
 
 @ApiTags('Users')
 @Controller('users')
@@ -34,7 +35,7 @@ export class UsersController {
   @ApiResponse({
     status: 200,
     description: 'Returns the list of all users.',
-    type: [User],
+    type: [GetUserDto],
   })
   async findAll() {
     return this.usersService.findAll();
@@ -66,7 +67,7 @@ export class UsersController {
   @ApiResponse({
     status: 200,
     description: 'The user has been successfully updated.',
-    type: User,
+    type: GetUserDto,
   })
   async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(id, updateUserDto);

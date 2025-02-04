@@ -1,5 +1,5 @@
 export interface RequestUser {
-  userId: string;
+  id: string;
   email: string;
   role: string;
 }

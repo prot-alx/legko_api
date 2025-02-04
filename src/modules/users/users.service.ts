@@ -10,6 +10,7 @@ import * as bcrypt from 'bcrypt';
 import { User, UserDocument, UserRole } from './schemas/user.schema';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
+import { GetUserDto } from './dto/get-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -17,7 +18,7 @@ export class UsersService {
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
   ) {}
 
-  async create(createUserDto: CreateUserDto): Promise<User> {
+  async create(createUserDto: CreateUserDto): Promise<GetUserDto> {
     const email = createUserDto.email.toLowerCase();
     const existingUser = await this.userModel.findOne({ email });
 
@@ -33,7 +34,8 @@ export class UsersService {
       role: createUserDto.role || UserRole.Student,
     });
 
-    return newUser.save();
+    const savedUser = await newUser.save();
+    return this.mapToGetUserDto(savedUser);
   }
 
   async validateUser(email: string, password: string): Promise<UserDocument> {
@@ -48,30 +50,44 @@ export class UsersService {
     return user;
   }
 
-  async findAll(): Promise<User[]> {
-    return this.userModel.find().exec();
+  async findAll(): Promise<GetUserDto[]> {
+    const users = await this.userModel.find().exec();
+    return users.map((user) => this.mapToGetUserDto(user));
   }
 
   async findByEmail(email: string): Promise<UserDocument | null> {
     return this.userModel.findOne({ email }).exec();
   }
 
-  async findOne(id: string): Promise<User> {
+  async findOne(id: string): Promise<GetUserDto> {
     const user = await this.userModel.findById(id).exec();
     if (!user) throw new NotFoundException('User not found');
-    return user;
+    return this.mapToGetUserDto(user);
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
+  async update(id: string, updateUserDto: UpdateUserDto): Promise<GetUserDto> {
     const updatedUser = await this.userModel
       .findByIdAndUpdate(id, updateUserDto, { new: true })
       .exec();
     if (!updatedUser) throw new NotFoundException('User not found');
-    return updatedUser;
+
+    return this.mapToGetUserDto(updatedUser);
   }
 
   async remove(id: string): Promise<void> {
     const result = await this.userModel.findByIdAndDelete(id).exec();
     if (!result) throw new NotFoundException('User not found');
+  }
+
+  private mapToGetUserDto(user: UserDocument): GetUserDto {
+    return {
+      id: user._id as string,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      middleName: user.middleName,
+      role: user.role,
+      isActive: user.isActive,
+    };
   }
 }

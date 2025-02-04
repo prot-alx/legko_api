@@ -13,7 +13,7 @@ import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { User } from '../users/schemas/user.schema';
+import { GetLoginedUserDto } from '../users/dto/login-user.dto';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -71,7 +71,7 @@ export class AuthController {
   @ApiResponse({
     status: 200,
     description: 'Returns the profile of the logged-in user.',
-    type: User,
+    type: GetLoginedUserDto,
   })
   getProfile(@Req() req: Request) {
     return req['user'];
