@@ -7,7 +7,13 @@ import {
   Put,
   Delete,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiParam,
+  ApiBody,
+} from '@nestjs/swagger';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
@@ -24,14 +30,19 @@ export class UsersController {
   @ApiResponse({
     status: 201,
     description: 'The user has been successfully created.',
-    type: User,
+    type: GetUserDto,
   })
   async create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
   }
 
   @Post('bulk')
-  @ApiOperation({ summary: 'Create multiple users' })
+  @ApiOperation({
+    summary: 'Create multiple users.',
+  })
+  @ApiBody({
+    type: () => [CreateUserDto],
+  })
   @ApiResponse({
     status: 201,
     description: 'Users have been successfully created.',

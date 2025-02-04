@@ -31,12 +31,16 @@ export class CreateUserDto {
   @IsString()
   lastName: string;
 
-  @ApiPropertyOptional({ example: 'James' })
+  @ApiPropertyOptional({ example: 'James', required: false })
   @IsString()
   @IsOptional()
   middleName?: string;
 
-  @ApiProperty({ enum: UserRole, default: UserRole.Student })
+  @ApiPropertyOptional({
+    enum: UserRole,
+    default: UserRole.Student,
+    required: false,
+  })
   @IsEnum(UserRole)
   @IsOptional()
   role?: UserRole;
