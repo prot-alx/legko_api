@@ -19,14 +19,21 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
+  app.enableCors({
+    origin: [appConfig.FRONTEND_URL],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+  });
+
   try {
-    await app.listen(process.env.PORT ?? 3000);
+    await app.listen(appConfig.PORT ?? 3000);
 
     const end = Date.now();
     const elapsed = end - start;
 
     console.log(
-      `🚀 Server running on http://localhost:${appConfig.port ?? 3000} (started in ${elapsed}ms)`,
+      `🚀 Server running on http://localhost:${appConfig.PORT ?? 3000} (started in ${elapsed}ms)`,
     );
   } catch (error) {
     console.error('❌ Error starting the application:', error);
